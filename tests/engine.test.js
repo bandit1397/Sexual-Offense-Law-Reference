@@ -118,6 +118,21 @@ var cases = [
   { n: '11세 친족 강제추행 + 신고의무자 → 7조3항 주 (가중이 순위를 바꾸지 않음)',
     i: { victim: { age: 11 }, offender: { age: 45 }, act: 't', means: 'force', f: { kin: true, reporter: true } },
     primary: 'sp7_3', has: ['sp5_2'] },
+  { n: '성인과 대가 신체 접촉 → 성매매 아님',
+    i: { victim: { age: 25 }, offender: { age: 30 }, act: 'buying', buyKind: 't' },
+    primary: null },
+  { n: '17세 성착취물 제작 → 공소시효 없음 안내',
+    i: { victim: { age: 17 }, offender: { age: 25 }, act: 'media', sub: 'film' },
+    primary: 'ac11_1', sol: /공소시효 없음/ },
+  { n: '15세 친족 강간 → 공소시효 없음 (아청법 제20조제4항)',
+    i: { victim: { age: 15 }, offender: { age: 45 }, act: 'r', means: 'force', f: { kin: true } },
+    sol: /공소시효 없음/ },
+  { n: '성인 성매매 → 공소시효 특례 안내 없음',
+    i: { victim: { age: 25 }, offender: { age: 30 }, act: 'buying', buyKind: 'r' },
+    primary: 'pr21', sol: null },
+  { n: '2019년 범행, 15세·가해자 20세 동의 → 305조2항 시행 전',
+    i: { date: '2019-08-01', victim: { age: 15 }, offender: { age: 20 }, act: 'r', means: 'none' },
+    primary: null, excluded: ['hy305_2_r'] },
   { n: '군인→군인 강제추행 → 군형법 함께',
     i: { victim: { age: 22, military: true }, offender: { age: 25, military: true }, act: 't', means: 'force' },
     primary: 'm92_3', has: ['hy298'] },
@@ -134,6 +149,7 @@ cases.forEach(function (c) {
   if ('primary' in c && p !== c.primary) errs.push('primary=' + p + ' (기대 ' + c.primary + ')');
   (c.has || []).forEach(function (id) { if (!r.hits.some(function (h) { return h.id === id; })) errs.push('누락 ' + id); });
   (c.excluded || []).forEach(function (id) { if (!r.excluded.some(function (h) { return h.id === id; })) errs.push('제외 목록에 없음 ' + id); });
+  if ('sol' in c) { if (c.sol === null ? r.sol : !c.sol.test(r.sol || '')) errs.push('공소시효 안내 불일치: ' + r.sol); }
   if (c.blockedMod) { var h = r.hits.filter(function (x) { return x.id === c.blockedMod; })[0]; if (!h || !h.mods.some(function (m) { return m.blocked; })) errs.push('위헌 차단 표시 없음'); }
   if (errs.length) { fail++; console.log('✗ ' + c.n + '\n    ' + errs.join('\n    ') + '\n    hits: ' + r.hits.map(function (h) { return h.id; }).join(', ')); }
   else console.log('✓ ' + c.n);

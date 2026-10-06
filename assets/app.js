@@ -188,7 +188,8 @@
     var r = E.evaluate(state);
     last = r;
     var vi = r.victim, oi = r.offender;
-    $('#vAgeOut').innerHTML = vi.known ? ('<b>만 ' + vi.age + '세</b> · ' + esc(vMeaning(vi, oi))) : '';
+    var vm = vi.known ? vMeaning(vi, oi) : '';
+    $('#vAgeOut').innerHTML = vi.known ? ('<b>만 ' + vi.age + '세</b> · <span class="' + (/처벌/.test(vm) ? 'key-inline' : '') + '">' + esc(vm) + '</span>') : '';
     $('#oAgeOut').innerHTML = oi.known ? ('<b>만 ' + oi.age + '세</b> · ' + esc(oBand(oi))) : '';
     markQuick('vAge', vi.known ? vi.age : null);
     markQuick('oAge', oi.known ? oi.age : null);
@@ -234,6 +235,7 @@
     html += '<div class="name">' + esc(law.name) + stage + (law.verify ? '<span class="badge warn">죄명 확인</span>' : '') + '</div>';
     html += '<div class="art">' + esc(D.LAWNAME[law.g]) + ' ' + esc(law.art) + (h.stage === 'attempt' ? ' · 미수 근거: ' + esc(h.stageLaw) : '') + '</div>';
     html += '<div class="pen">' + pen + '</div>';
+    if (law.key) html += '<div class="key">' + esc(law.key) + '</div>';
     if (h.why) html += '<div class="why">' + esc(h.why) + '</div>';
     if (h.cond) html += '<div class="cond">조건: ' + esc(h.cond) + '</div>';
     h.mods.forEach(function (m) { html += '<div class="mod' + (m.blocked ? ' blocked' : '') + '"><b>' + esc(m.law) + '</b> · ' + esc(m.text) + '</div>'; });
@@ -258,6 +260,7 @@
       html += '<div class="hl-kicker">주 적용 후보</div><div class="hl-name">' + esc(shortName(tl.name)) + (top.stage === 'attempt' ? ' 미수' : top.stage === 'prep' ? ' 예비·음모' : '') + '</div>' +
         '<div class="hl-art">' + esc(D.LAWNAME[tl.g] + ' ' + tl.art) + '</div>' +
         '<div class="hl-pen">' + esc(top.stage === 'prep' ? '3년 이하의 징역' : tl.pen) + '</div>' +
+        (tl.key ? '<div class="key">' + esc(tl.key) + '</div>' : '') +
         (mainHits.length > 1 ? '<div class="hl-more">함께 검토 ' + (mainHits.length - 1) + '건 · 아래 참고</div>' : '');
     } else {
       html += '<div class="hl-none">처벌 조문이 확인되지 않음 — 아래 "적용 안 됨"과 참고 사항 확인</div>';
@@ -296,8 +299,8 @@
     }
     if (r.notes.length || r.sol) {
       html += '<div class="card"><h3>참고</h3><ul class="notes">';
-      r.notes.forEach(function (n) { html += '<li>' + esc(n) + '</li>'; });
-      if (r.sol && main.length) html += '<li><b>공소시효</b>: ' + esc(r.sol) + '</li>';
+      r.notes.forEach(function (n) { html += n[0] === '!' ? '<li class="key">' + esc(n.slice(1)) + '</li>' : '<li>' + esc(n) + '</li>'; });
+      if (r.sol && main.length) html += r.sol[0] === '!' ? '<li class="key"><b>공소시효</b>: ' + esc(r.sol.slice(1)) + '</li>' : '<li><b>공소시효</b>: ' + esc(r.sol) + '</li>';
       html += '</ul></div>';
     }
     html += '<div class="card actions"><button class="btn" id="copy">보고용 요약 복사</button><button class="btn secondary" id="toCheck">현장 조치 체크리스트 ↓</button><span class="toast" id="toast"></span></div>';
@@ -327,7 +330,7 @@
     var html = '';
     secs.forEach(function (s) {
       html += '<div class="check-sec"><h4>' + esc(s.title) + '</h4>';
-      s.items.forEach(function (t) { html += '<label><input type="checkbox"><span>' + esc(t) + '</span></label>'; });
+      s.items.forEach(function (it) { html += '<label' + (it.key ? ' class="imp"' : '') + '><input type="checkbox"><span>' + (it.key ? '<b class="imp-tag">필수</b> ' : '') + esc(it.t) + '</span></label>'; });
       html += '</div>';
     });
     el.innerHTML = html;
@@ -350,7 +353,7 @@
     var main = r.hits.filter(function (h) { return h.role !== 'aux'; });
     main.forEach(function (h, i) {
       var law = L[h.id];
-      lines.push((i === 0 && h.primary ? '▶ 주 적용 후보: ' : '- 함께 검토: ') + law.name + (h.stage === 'attempt' ? ' 미수' : h.stage === 'prep' ? ' 예비·음모' : '') +
+      lines.push((i === 0 && h.primary ? '▶ 주 적용 후보: ' : '- 함께 검토: ') + law.name + (h.stage === 'attempt' ? ' [미수: ' + h.stageLaw + ']' : h.stage === 'prep' ? ' [예비·음모: ' + h.stageLaw + ']' : '') +
         ' (' + D.LAWNAME[law.g] + ' ' + law.art + ') — ' + (h.stage === 'prep' ? '3년 이하의 징역' : law.pen) +
         h.mods.filter(function (m) { return !m.blocked; }).map(function (m) { return ' [' + m.law + ' 가중]'; }).join(''));
     });
@@ -374,14 +377,15 @@
       var rows = Object.keys(L).map(function (k) { return L[k]; }).filter(function (law) {
         if (law.g !== g.g) return false;
         if (!q) return true;
-        return [law.art, law.name, law.req, law.pen, law.note || ''].join(' ').indexOf(q) >= 0;
+        return [law.art, law.name, law.req, law.pen, law.note || '', law.key || ''].join(' ').indexOf(q) >= 0;
       });
       if (!rows.length) return;
       html += '<div class="lt-group"><h3>' + esc(g.title) + '</h3>';
       rows.forEach(function (law) {
         html += '<div class="lt-row"><div class="a">' + esc(law.art) + '</div><div class="n">' + esc(law.name) + (law.verify ? '<span class="badge warn">죄명 확인</span>' : '') +
           '</div><div class="r">' + esc(law.req) + '</div><div class="p">' + esc(law.pen) + '</div>' +
-          '<div class="x">미수: ' + esc(law.att || '처벌 규정 없음') + ' · 예비·음모: ' + esc(law.prep || '처벌 규정 없음') + (law.note ? ' · ' + esc(law.note) : '') + '</div></div>';
+          '<div class="x">미수: ' + (law.att ? esc(law.att) : '<span class="key-inline">처벌 안 됨</span>') + ' · 예비·음모: ' + (law.prep ? esc(law.prep) : '처벌 안 됨') + '</div>' +
+          (law.key ? '<div class="key lt-key">' + esc(law.key) + '</div>' : '') + '</div>';
       });
       html += '</div>';
     });
