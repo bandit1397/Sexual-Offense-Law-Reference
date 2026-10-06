@@ -238,3 +238,38 @@ code { background: var(--surface-2); padding: 1px 5px; border-radius: 4px; }
 .lt-row .lt-key { grid-column: 1 / -1; justify-self: start; }
 .check-sec label.imp { background: var(--key-bg); border-left: 4px solid var(--key-ink); padding-left: 8px; }
 .imp-tag { color: #fff; background: var(--key-ink); border-radius: 4px; padding: 0 5px; font-size: .75rem; }
+
+/* ── 판정 단계 접기·펼치기 (추가분) ── */
+:root { --done: #2f8a55; --done-soft: #e3f3e9; --todo: #b9c2cf; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --done: #4fbf7f; --done-soft: #16301f; --todo: #4a5668; } }
+:root[data-theme="dark"] { --done: #4fbf7f; --done-soft: #16301f; --todo: #4a5668; }
+
+.step.fold { border-left: 6px solid var(--todo); padding-top: 0; }
+.step.fold.is-done { border-left-color: var(--done); }
+.step.fold > legend {
+  float: left; width: 100%; padding: 10px 0; margin: 0; cursor: pointer; user-select: none;
+  display: flex; align-items: center; gap: 8px; min-height: 48px;
+}
+.step.fold > legend + * { clear: both; }
+.step.fold > legend .num { background: var(--todo); color: var(--text); flex: none; }
+.step.fold.is-done > legend .num { background: var(--done); color: #fff; }
+.fold-title { flex: none; }
+.fold-sum {
+  flex: 1; min-width: 0; font-weight: 400; font-size: .86rem; color: var(--muted); text-align: right;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.step.fold.is-done .fold-sum { color: var(--text); }
+.fold-state {
+  flex: none; font-size: .72rem; font-weight: 700; padding: 2px 8px; border-radius: 999px;
+  background: var(--surface-2); color: var(--muted);
+}
+.step.fold.is-done .fold-state { background: var(--done-soft); color: var(--done); }
+.fold-chev { flex: none; color: var(--muted); font-size: .8rem; transition: transform .15s; }
+.step.fold.open .fold-chev { transform: rotate(180deg); }
+.step.fold:not(.open) { padding-bottom: 0; }
+.step.fold:not(.open) > :not(legend) { display: none; }
+.step.fold.open .fold-sum { visibility: hidden; }
+.fold-close { display: flex; justify-content: flex-end; margin-top: 10px; }
+.fold-close button { background: var(--surface-2); border: 0; border-radius: 10px; padding: 8px 14px; min-height: 40px; cursor: pointer; font-weight: 600; }
+.step.fold > legend:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+

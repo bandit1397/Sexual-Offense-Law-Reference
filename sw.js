@@ -1,5 +1,5 @@
 // 오프라인 사용을 위한 캐시. 파일을 고치면 VERSION 을 올린다.
-var VERSION = 'v3-2026-10-06';
+var VERSION = 'v4-2026-10-06';
 var FILES = ['./', 'index.html', 'assets/style.css', 'assets/laws.js', 'assets/engine.js', 'assets/checklist.js', 'assets/app.js', 'assets/icon.svg', 'manifest.webmanifest'];
 self.addEventListener('install', function (e) {
   e.waitUntil(caches.open(VERSION).then(function (c) { return c.addAll(FILES); }).then(function () { return self.skipWaiting(); }));

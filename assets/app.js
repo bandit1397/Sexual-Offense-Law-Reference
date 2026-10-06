@@ -417,3 +417,80 @@
   }
   init();
 })();
+
+/* 판정 단계 접기·펼치기. 기존 입력·결과 처리는 건드리지 않고 화면에 덧붙이기만 한다. */
+(function () {
+  'use strict';
+  var form = document.getElementById('form');
+  var steps = Array.prototype.slice.call(form.querySelectorAll('fieldset.step'));
+  var touched = {};
+
+  steps.forEach(function (st, i) {
+    st.dataset.idx = i;
+    st.classList.add('fold');
+    var lg = st.querySelector('legend');
+    var num = lg.querySelector('.num');
+    var title = document.createElement('span'); title.className = 'fold-title';
+    // legend 안의 제목 글자만 감싸기
+    Array.prototype.slice.call(lg.childNodes).forEach(function (n) { if (n !== num) title.appendChild(n); });
+    lg.appendChild(title);
+    lg.insertAdjacentHTML('beforeend', '<span class="fold-sum"></span><span class="fold-state"></span><span class="fold-chev">▼</span>');
+    lg.tabIndex = 0;
+    lg.setAttribute('role', 'button');
+    lg.addEventListener('click', function () { toggle(st); });
+    lg.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(st); } });
+    var c = document.createElement('div'); c.className = 'fold-close';
+    c.innerHTML = '<button type="button">접기 ▲</button>';
+    c.querySelector('button').addEventListener('click', function () { toggle(st, false); lg.scrollIntoView({ block: 'nearest' }); });
+    st.appendChild(c);
+  });
+
+  function toggle(st, on) {
+    if (on == null) on = !st.classList.contains('open');
+    st.classList.toggle('open', on);
+    st.querySelector('legend').setAttribute('aria-expanded', on ? 'true' : 'false');
+  }
+
+  function label(btn) { return (btn.firstChild && btn.firstChild.nodeType === 3 ? btn.firstChild.nodeValue : btn.textContent).trim(); }
+  function summary(st) {
+    if (st.dataset.idx === '0') {
+      var v = document.querySelector('#vAgeOut b'), o = document.querySelector('#oAgeOut b');
+      return '피해자 ' + (v ? v.textContent : '미입력') + ' · 가해자 ' + (o ? o.textContent : '미상');
+    }
+    var on = Array.prototype.slice.call(st.querySelectorAll('.chips button[aria-pressed="true"]')).map(label);
+    return on.length ? on.join(', ') : '없음';
+  }
+  function isDone(st) {
+    if (st.dataset.idx === '0') return !!document.querySelector('#vAgeOut b');
+    return !!touched[st.dataset.idx];
+  }
+
+  function refresh() {
+    steps.forEach(function (st) {
+      var d = isDone(st);
+      st.classList.toggle('is-done', d);
+      st.querySelector('.fold-sum').textContent = summary(st);
+      st.querySelector('.fold-state').textContent = d ? '✓ 완료' : '미선택';
+    });
+  }
+
+  // 어느 단계에서 눌렀는지 기록 (기존 화면이 버튼을 다시 그리기 전에 잡음)
+  form.addEventListener('click', function (e) {
+    if (e.target.closest('legend') || e.target.closest('.fold-close')) return;
+    var st = e.target.closest('fieldset.step');
+    if (st && e.target.closest('button')) touched[st.dataset.idx] = true;
+  }, true);
+  form.addEventListener('input', function (e) {
+    var st = e.target.closest('fieldset.step'); if (st) touched[st.dataset.idx] = true;
+  }, true);
+  form.addEventListener('click', function () { setTimeout(refresh, 0); });
+  form.addEventListener('input', function () { setTimeout(refresh, 0); });
+  document.getElementById('reset').addEventListener('click', function () {
+    touched = {};
+    steps.forEach(function (st, i) { toggle(st, i === 0); });
+    setTimeout(refresh, 0);
+  });
+
+  steps.forEach(function (st, i) { toggle(st, i === 0); });
+  refresh();
+})();
