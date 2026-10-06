@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>성범죄 적용법조 길잡이</title>
+<meta name="description" content="지구대·파출소 경찰관이 성범죄 신고 현장에서 조건을 입력하면 적용 가능한 법조·죄명·법정형과 현장 조치 체크리스트를 보여주는 참고 도구">
+<meta name="theme-color" content="#1d3b6e">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<header class="top">
+  <div class="top-inner">
+    <h1>성범죄 적용법조 길잡이</h1>
+    <p class="sub">현장 참고용 · 최종 판단은 수사부서</p>
+  </div>
+  <nav class="tabs" role="tablist">
+    <button role="tab" data-tab="judge" aria-selected="true">판정</button>
+    <button role="tab" data-tab="table" aria-selected="false">법조 일람표</button>
+    <button role="tab" data-tab="check" aria-selected="false">현장 조치</button>
+    <button role="tab" data-tab="about" aria-selected="false">안내</button>
+  </nav>
+</header>
+
+<main>
+  <!-- 판정 -->
+  <section id="tab-judge" class="tab-panel">
+    <div class="judge-grid">
+      <form id="form" class="form" autocomplete="off" onsubmit="return false">
+        <fieldset class="step">
+          <legend><span class="num">1</span>날짜·나이</legend>
+          <label class="row">
+            <span class="lbl">범행일</span>
+            <input type="date" id="date">
+          </label>
+          <div class="person">
+            <div class="person-head">피해자 <small>범행일 기준 만 나이</small></div>
+            <div class="age-row">
+              <input type="number" id="vAge" inputmode="numeric" min="0" max="120" placeholder="만 나이">
+              <span class="or">또는</span>
+              <input type="date" id="vBirth" aria-label="피해자 생년월일">
+            </div>
+            <div class="chips quick" data-quick="vAge">
+              <button type="button" data-v="10">13세 미만</button>
+              <button type="button" data-v="14">13~15세</button>
+              <button type="button" data-v="17">16~18세</button>
+              <button type="button" data-v="25">19세 이상</button>
+            </div>
+            <div class="age-out" id="vAgeOut"></div>
+          </div>
+          <div class="person">
+            <div class="person-head">가해자 <small>모르면 비워 두기</small></div>
+            <div class="age-row">
+              <input type="number" id="oAge" inputmode="numeric" min="0" max="120" placeholder="만 나이">
+              <span class="or">또는</span>
+              <input type="date" id="oBirth" aria-label="가해자 생년월일">
+            </div>
+            <div class="chips quick" data-quick="oAge">
+              <button type="button" data-v="12">14세 미만</button>
+              <button type="button" data-v="16">14~18세</button>
+              <button type="button" data-v="30">19세 이상</button>
+            </div>
+            <div class="age-out" id="oAgeOut"></div>
+          </div>
+        </fieldset>
+
+        <fieldset class="step">
+          <legend><span class="num">2</span>무슨 일이 있었나</legend>
+          <div class="chips big" id="act"></div>
+          <div id="subBox"></div>
+        </fieldset>
+
+        <fieldset class="step" id="meansStep">
+          <legend><span class="num">3</span>어떤 방법으로</legend>
+          <div class="chips stack" id="means"></div>
+        </fieldset>
+
+        <fieldset class="step">
+          <legend><span class="num">4</span>피해자 특성</legend>
+          <div class="chips stack" id="disability"></div>
+          <div class="chips" id="vflags"></div>
+        </fieldset>
+
+        <fieldset class="step" id="flagStep">
+          <legend><span class="num">5</span>상황·관계 <small>해당하는 것 모두</small></legend>
+          <div class="chips" id="flags"></div>
+        </fieldset>
+
+        <fieldset class="step" id="resultStep">
+          <legend><span class="num">6</span>결과·진행 정도</legend>
+          <div class="chips" id="result"></div>
+          <div class="chips" id="stage"></div>
+        </fieldset>
+
+        <div class="form-actions">
+          <button type="button" id="reset" class="ghost">처음부터</button>
+        </div>
+      </form>
+
+      <aside class="result" id="result-panel" aria-live="polite">
+        <div id="out"></div>
+      </aside>
+    </div>
+    <a href="#result-panel" class="jump" id="jump">결과 보기 ↓</a>
+  </section>
+
+  <!-- 일람표 -->
+  <section id="tab-table" class="tab-panel" hidden>
+    <div class="table-tools">
+      <input type="search" id="q" placeholder="검색 (예: 13세, 촬영, 친족, 제7조)">
+    </div>
+    <div id="lawTable"></div>
+  </section>
+
+  <!-- 현장 조치 -->
+  <section id="tab-check" class="tab-panel" hidden>
+    <p class="hint">판정 화면에서 입력한 조건에 맞는 항목만 표시됩니다. 체크 표시는 저장되지 않습니다.</p>
+    <div id="checkAll"></div>
+  </section>
+
+  <!-- 안내 -->
+  <section id="tab-about" class="tab-panel prose" hidden>
+    <h2>이 도구는</h2>
+    <p>성범죄 신고 현장에서 <b>피해자·가해자 나이, 행위, 방법, 상황</b>을 고르면 적용할 수 있는 법조·죄명·법정형과 현장 조치를 보여줍니다. 지구대·파출소 초동 조치용 참고 자료이며, <b>최종 법률 판단은 수사부서와 검사가 합니다.</b></p>
+    <h2>읽는 법</h2>
+    <ul>
+      <li><b>주 적용 후보</b>: 요건을 충족하는 조문 중 법정형이 가장 무거운 특별규정입니다.</li>
+      <li><b>함께 검토</b>: 같이 성립할 수 있는 조문입니다. 법조경합·경합범 여부는 수사부서가 판단합니다.</li>
+      <li><b>적용 안 됨</b>: 헷갈리기 쉬운 조문이 왜 적용되지 않는지 보여줍니다.</li>
+      <li><span class="badge warn">죄명 확인</span> 표시가 있으면 죄명 표기를 대검 죄명예규 최신본으로 다시 확인하세요.</li>
+    </ul>
+    <h2>개인정보</h2>
+    <p>입력값은 이 기기 화면에서만 계산하며 <b>어디에도 저장하거나 전송하지 않습니다.</b> 피해자 이름 등 신원 정보는 입력하지 마세요.</p>
+    <h2>법령 기준</h2>
+    <div id="sources"></div>
+    <h2>원래 표에서 바뀐 주요 내용</h2>
+    <ul>
+      <li>아청법 아동·청소년 기준이 <b>2024.6.27.부터 만 19세 미만</b>으로 바뀌었습니다. "19세가 되는 해 1월 1일을 맞은 사람 제외" 규정은 그 전 범행에만 적용됩니다.</li>
+      <li>군형법 제92조 계열은 <b>피해자도 군인 등</b>이어야 합니다 (군형법 제1조제1항~제3항).</li>
+      <li>아청법 제18조(신고의무자 가중) 중 성폭력처벌법 제7조제3항 부분은 위헌입니다 (2023헌가15, 2026.5.21.).</li>
+      <li>성폭력처벌법 제3조제1항 중 "주거침입 + 강제추행·준강제추행" 부분은 위헌입니다 (2021헌가9, 2023.2.23.).</li>
+      <li>강제추행 예비·음모는 처벌하지 않습니다. 형법 제305조(의제강간 등)는 판례상 미수도 처벌합니다.</li>
+      <li>촬영·딥페이크·통신매체·성매수·성착취물·그루밍·공연음란·과다노출·성적목적 장소침입·약취유인을 추가했습니다.</li>
+    </ul>
+    <h2>업데이트</h2>
+    <p>법령이 바뀌면 <code>assets/laws.js</code>(조문·법정형)와 <code>tests/engine.test.js</code>(시나리오)를 함께 고칩니다.</p>
+  </section>
+</main>
+
+<footer class="foot">
+  <span id="footMeta"></span>
+</footer>
+
+<script src="assets/laws.js"></script>
+<script src="assets/engine.js"></script>
+<script src="assets/checklist.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{
+  "name": "성범죄 적용법조 길잡이",
+  "short_name": "적용법조",
+  "description": "성범죄 신고 현장용 적용법조·현장조치 참고 도구",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f4f6f9",
+  "theme_color": "#1d3b6e",
+  "lang": "ko",
+  "icons": [{ "src": "assets/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}
