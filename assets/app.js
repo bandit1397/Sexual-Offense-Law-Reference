@@ -5,17 +5,18 @@
   var $ = function (s) { return document.querySelector(s); };
 
   var ACTS = [
-    { v: 'r', t: '간음(성교)', ex: '성기 삽입' },
-    { v: 'p', t: '유사강간(삽입행위)', ex: '구강·항문에 성기, 성기·항문에 손가락·도구' },
-    { v: 't', t: '추행(신체 접촉)', ex: '만지기, 강제 입맞춤 등' },
-    { v: 'buying', t: '대가 성행위', ex: '성매수·성매매·조건만남' },
-    { v: 'media', t: '촬영물·영상', ex: '불법촬영·유포·소지·딥페이크·협박' },
-    { v: 'online', t: '온라인·통신', ex: '음란 메시지·그루밍' },
-    { v: 'exposure', t: '노출·음란행위', ex: '공공장소 노출·자위' },
-    { v: 'intrusion', t: '화장실·탈의실 침입', ex: '성적 목적' },
-    { v: 'abuse', t: '성희롱·성적 학대', ex: '아동·장애인·노인 대상' },
-    { v: 'kidnap', t: '약취·유인', ex: '성적 목적으로 데려감' }
+    { v: 'r', g: 'body', t: '간음(성교)', ex: '성기 삽입' },
+    { v: 'p', g: 'body', t: '유사강간(삽입행위)', ex: '구강·항문에 성기, 성기·항문에 손가락·도구' },
+    { v: 't', g: 'body', t: '추행(신체 접촉)', ex: '만지기, 강제 입맞춤 등' },
+    { v: 'buying', g: 'body', t: '대가 성행위', ex: '성매수·성매매·조건만남' },
+    { v: 'media', g: 'digital', t: '촬영물·영상', ex: '불법촬영·유포·소지·딥페이크·협박' },
+    { v: 'online', g: 'digital', t: '온라인·통신', ex: '음란 메시지·그루밍' },
+    { v: 'exposure', g: 'etc', t: '노출·음란행위', ex: '공공장소 노출·자위' },
+    { v: 'intrusion', g: 'etc', t: '화장실·탈의실 침입', ex: '성적 목적' },
+    { v: 'abuse', g: 'etc', t: '성희롱·성적 학대', ex: '아동·장애인·노인 대상' },
+    { v: 'kidnap', g: 'etc', t: '약취·유인', ex: '성적 목적으로 데려감' }
   ];
+  var ACT_GROUPS = [{ g: 'body', t: '신체 접촉' }, { g: 'digital', t: '촬영·온라인' }, { g: 'etc', t: '그 밖의 행위' }];
   var CONTACT = ['r', 'p', 't'];
   var MEANS = [
     { v: 'force', t: '폭행·협박', ex: '때림, 누름, 흉기·말로 위협 등 저항을 억누름' },
@@ -31,22 +32,23 @@
     { v: 'weak', t: '장애로 판단능력이 미약함', ex: '지적장애 등으로 사물 변별·의사결정 능력 미약' }
   ];
   var FLAGS = [
-    { v: 'weapon', t: '흉기·위험한 물건 휴대', acts: CONTACT },
-    { v: 'group', t: '2명 이상 합동', acts: CONTACT },
-    { v: 'kin', t: '친족 (4촌 이내·동거·사실상)', acts: CONTACT.concat(['abuse']) },
-    { v: 'homeInvasion', t: '주거침입 후 범행', acts: CONTACT },
-    { v: 'burglary', t: '야간주거침입절도·특수절도', acts: CONTACT },
-    { v: 'robbery', t: '강도', acts: CONTACT },
-    { v: 'specialRobbery', t: '특수강도 (흉기·합동 강도)', acts: CONTACT },
-    { v: 'crowded', t: '대중교통·공중 밀집 장소', acts: CONTACT.concat(['exposure']) },
-    { v: 'workplace', t: '업무·고용 등 보호·감독 관계', acts: CONTACT },
-    { v: 'custody', t: '구금된 사람 ↔ 감호자', acts: CONTACT },
-    { v: 'facility', t: '장애인시설 장·종사자', acts: CONTACT },
-    { v: 'reporter', t: '학교·학원·어린이집·병원 등 신고의무기관 종사자', acts: CONTACT },
-    { v: 'intrusionPlace', t: '화장실·탈의실에 들어가서 촬영', acts: ['media'] },
-    { v: 'habitual', t: '상습', acts: CONTACT.concat(['media']) },
-    { v: 'offMilitary', t: '가해자가 군인 등', acts: null }
+    { v: 'weapon', g: 'how', t: '흉기·위험한 물건 휴대', acts: CONTACT },
+    { v: 'group', g: 'how', t: '2명 이상 합동', acts: CONTACT },
+    { v: 'kin', g: 'rel', t: '친족 (4촌 이내·동거·사실상)', acts: CONTACT.concat(['abuse']) },
+    { v: 'homeInvasion', g: 'how', t: '주거침입 후 범행', acts: CONTACT },
+    { v: 'burglary', g: 'how', t: '야간주거침입절도·특수절도', acts: CONTACT },
+    { v: 'robbery', g: 'how', t: '강도', acts: CONTACT },
+    { v: 'specialRobbery', g: 'how', t: '특수강도 (흉기·합동 강도)', acts: CONTACT },
+    { v: 'crowded', g: 'how', t: '대중교통·공중 밀집 장소', acts: CONTACT.concat(['exposure']) },
+    { v: 'workplace', g: 'rel', t: '업무·고용 등 보호·감독 관계', acts: CONTACT },
+    { v: 'custody', g: 'rel', t: '구금된 사람 ↔ 감호자', acts: CONTACT },
+    { v: 'facility', g: 'rel', t: '장애인시설 장·종사자', acts: CONTACT },
+    { v: 'reporter', g: 'rel', t: '학교·학원·어린이집·병원 등 신고의무기관 종사자', acts: CONTACT },
+    { v: 'intrusionPlace', g: 'how', t: '화장실·탈의실에 들어가서 촬영', acts: ['media'] },
+    { v: 'habitual', g: 'etc', t: '상습', acts: CONTACT.concat(['media']) },
+    { v: 'offMilitary', g: 'rel', t: '가해자가 군인 등', acts: null }
   ];
+  var FLAG_GROUPS = [{ g: 'rel', t: '가해자와의 관계·신분' }, { g: 'how', t: '수단·장소' }, { g: 'etc', t: '기타' }];
   var RESULTS = [
     { v: 'none', t: '상해·사망 없음' }, { v: 'hurt', t: '다침 (치상)' }, { v: 'injury', t: '고의로 상해' },
     { v: 'death', t: '사망 (치사)' }, { v: 'murder', t: '살해' }
@@ -88,8 +90,12 @@
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
 
   function renderForm() {
-    chips($('#act'), ACTS, function (v) { return state.act === v; }, function (v) {
-      if (state.act !== v) { state.act = v; state.sub = SUBS[v] ? SUBS[v].opts[0].v : null; }
+    var actBox = $('#act'); actBox.innerHTML = '';
+    ACT_GROUPS.forEach(function (grp) {
+      var c = addSub(actBox, grp.t, ACTS.filter(function (a) { return a.g === grp.g; }), function (v) { return state.act === v; }, function (v) {
+        if (state.act !== v) { state.act = v; state.sub = SUBS[v] ? SUBS[v].opts[0].v : null; }
+      });
+      c.className = 'chips big';
     });
     var isContact = CONTACT.indexOf(state.act) >= 0;
 
@@ -114,9 +120,13 @@
     chips($('#disability'), DISAB, function (v) { return state.victim.disability === v; }, function (v) { state.victim.disability = v; });
     chips($('#vflags'), [{ v: 'military', t: '피해자가 군인 등' }], function () { return state.victim.military; }, function () { state.victim.military = !state.victim.military; });
 
-    var fl = FLAGS.filter(function (x) { return !x.acts || x.acts.indexOf(state.act) >= 0; });
-    chips($('#flags'), fl, function (v) { return v === 'offMilitary' ? state.offender.military : !!state.f[v]; }, function (v) {
-      if (v === 'offMilitary') state.offender.military = !state.offender.military; else state.f[v] = !state.f[v];
+    var flagBox = $('#flags'); flagBox.innerHTML = '';
+    FLAG_GROUPS.forEach(function (grp) {
+      var fl = FLAGS.filter(function (x) { return x.g === grp.g && (!x.acts || x.acts.indexOf(state.act) >= 0); });
+      if (!fl.length) return;
+      addSub(flagBox, grp.t, fl, function (v) { return v === 'offMilitary' ? state.offender.military : !!state.f[v]; }, function (v) {
+        if (v === 'offMilitary') state.offender.military = !state.offender.military; else state.f[v] = !state.f[v];
+      });
     });
     // 숨겨진 행위의 플래그는 끄기
     FLAGS.forEach(function (x) { if (x.acts && x.acts.indexOf(state.act) < 0 && x.v !== 'offMilitary') delete state.f[x.v]; });
@@ -124,16 +134,20 @@
     var showResult = isContact;
     var showStage = isContact || state.act === 'media' || state.act === 'kidnap' || (state.act === 'online' && state.sub === 'groom');
     $('#resultStep').hidden = !(showResult || showStage);
-    $('#result').hidden = !showResult;
+    $('#resultWrap').hidden = !showResult;
     if (!showResult) state.result = 'none';
     if (!showStage) state.stage = 'done';
     chips($('#result'), RESULTS, function (v) { return state.result === v; }, function (v) { state.result = v; });
     chips($('#stage'), STAGES, function (v) { return state.stage === v; }, function (v) { state.stage = v; });
+    // 보이는 단계만 번호 다시 매기기
+    var n = 0;
+    document.querySelectorAll('#form .step').forEach(function (st) { if (!st.hidden) st.querySelector('.num').textContent = ++n; });
   }
   function addSub(box, title, opts, isOn, onPick) {
     var t = document.createElement('div'); t.className = 'sub-title'; t.textContent = title; box.appendChild(t);
     var c = document.createElement('div'); c.className = 'chips'; box.appendChild(c);
     chips(c, opts, isOn, onPick);
+    return c;
   }
 
   /* ── 입력 필드 ── */
@@ -174,8 +188,10 @@
     var r = E.evaluate(state);
     last = r;
     var vi = r.victim, oi = r.offender;
-    $('#vAgeOut').textContent = vi.known ? ('만 ' + vi.age + '세 · ' + vBand(vi)) : '';
-    $('#oAgeOut').textContent = oi.known ? ('만 ' + oi.age + '세 · ' + oBand(oi)) : '';
+    $('#vAgeOut').innerHTML = vi.known ? ('<b>만 ' + vi.age + '세</b> · ' + esc(vMeaning(vi, oi))) : '';
+    $('#oAgeOut').innerHTML = oi.known ? ('<b>만 ' + oi.age + '세</b> · ' + esc(oBand(oi))) : '';
+    markQuick('vAge', vi.known ? vi.age : null);
+    markQuick('oAge', oi.known ? oi.age : null);
     renderResult(r);
     renderChecklist(r, $('#checkAll'));
     var j = $('#jump');
@@ -184,6 +200,25 @@
   function vBand(vi) {
     var s = vi.under13 ? '13세 미만' : vi.age13to15 ? '13세 이상 16세 미만' : vi.age < 19 ? '16세 이상 19세 미만' : '19세 이상';
     return s;
+  }
+  function markQuick(id, age) {
+    document.querySelectorAll('[data-quick="' + id + '"] button').forEach(function (b) {
+      var on = age != null && age >= Number(b.getAttribute('data-min')) && age <= Number(b.getAttribute('data-max'));
+      b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+  }
+  // 현장에서 바로 알아야 할 나이의 의미
+  function vMeaning(vi, oi) {
+    if (vi.under13) return '13세 미만: 동의가 있어도, 가해자가 몇 살이든 처벌';
+    if (vi.age13to15) {
+      if (!oi.known) return '13~15세: 가해자가 19세 이상이면 동의가 있어도 처벌 → 가해자 나이 확인';
+      return oi.adult19 ? '13~15세 + 가해자 19세 이상: 동의가 있어도 처벌' : '13~15세 + 가해자 19세 미만: 강제 수단·위계·위력 등이 있어야 처벌';
+    }
+    if (vi.age < 18) return '16~17세: 아청법 대상, 아동복지법 아동';
+    if (vi.ac) return '18세: 아청법 대상 (아동복지법 아동은 아님)';
+    if (vi.age === 18) return '18세이나 범행 당시 아청법 대상에서 제외';
+    if (vi.elderly) return '65세 이상: 성인 규정 + 노인복지법 검토';
+    return '성인: 형법·성폭력처벌법';
   }
   function oBand(oi) {
     return { under10: '10세 미만 (처분 불가)', chokbeop: '촉법소년 (형사처벌 불가)', juvenile: '범죄소년 (19세 미만)', adult: '성인 (19세 이상)' }[oi.band];
@@ -214,6 +249,21 @@
       return;
     }
     var vi = r.victim, oi = r.offender;
+    var mainHits = r.hits.filter(function (h) { return h.role !== 'aux'; });
+    var top = mainHits[0] && mainHits[0].primary ? mainHits[0] : null;
+    html += '<div class="card headline">';
+    html += '<div class="inputs">' + summaryChips(r).map(function (t) { return '<span class="tag">' + esc(t) + '</span>'; }).join('') + '</div>';
+    if (top) {
+      var tl = L[top.id];
+      html += '<div class="hl-kicker">주 적용 후보</div><div class="hl-name">' + esc(shortName(tl.name)) + (top.stage === 'attempt' ? ' 미수' : top.stage === 'prep' ? ' 예비·음모' : '') + '</div>' +
+        '<div class="hl-art">' + esc(D.LAWNAME[tl.g] + ' ' + tl.art) + '</div>' +
+        '<div class="hl-pen">' + esc(top.stage === 'prep' ? '3년 이하의 징역' : tl.pen) + '</div>' +
+        (mainHits.length > 1 ? '<div class="hl-more">함께 검토 ' + (mainHits.length - 1) + '건 · 아래 참고</div>' : '');
+    } else {
+      html += '<div class="hl-none">처벌 조문이 확인되지 않음 — 아래 "적용 안 됨"과 참고 사항 확인</div>';
+    }
+    if (r.warnings.length) html += '<div class="hl-warn">⚠ 주의 ' + r.warnings.length + '건 — 아래 확인</div>';
+    html += '</div>';
     // 연령 요약
     html += '<div class="card"><h3>연령 판정 <small>범행일 ' + esc(r.input.date) + '</small></h3><div class="ages">';
     if (vi.known) {
@@ -229,7 +279,7 @@
 
     var main = r.hits.filter(function (h) { return h.role !== 'aux'; });
     var aux = r.hits.filter(function (h) { return h.role === 'aux'; });
-    html += '<div class="card"><h3>적용 법조</h3>';
+    html += '<div class="card"><h3>적용 법조 상세</h3>';
     if (!main.length) html += '<div class="alert none">입력한 조건으로는 처벌 조문이 확인되지 않습니다. 아래 "적용 안 됨"과 참고 사항을 확인하고, 사실관계(나이·방법·대가 여부)를 다시 점검하세요.</div>';
     main.forEach(function (h, i) { html += lawBlock(h, i === 0 && h.primary ? 'primary' : 'compact'); if (i === 0 && h.primary && main.length > 1) html += '<div class="sub-title">함께 검토</div>'; });
     html += '</div>';
@@ -256,6 +306,18 @@
     renderChecklist(r, $('#checkInline > div'));
     $('#copy').addEventListener('click', copySummary);
     $('#toCheck').addEventListener('click', function () { $('#checkInline').scrollIntoView({ behavior: 'smooth' }); });
+  }
+  function summaryChips(r) {
+    var x = r.input, out = [];
+    out.push('피해자 ' + (r.victim.known ? r.victim.age + '세' : '?'));
+    out.push('가해자 ' + (r.offender.known ? r.offender.age + '세' : '?'));
+    out.push(ACTS.filter(function (a) { return a.v === x.act; })[0].t);
+    if (CONTACT.indexOf(x.act) >= 0) out.push(MEANS.filter(function (m) { return m.v === x.means; })[0].t);
+    if (r.victim.disabled) out.push('장애');
+    FLAGS.forEach(function (f) { if (f.v === 'offMilitary' ? x.offender.military : x.f[f.v]) out.push(f.t.replace(/ \(.*\)$/, '')); });
+    if (x.result !== 'none') out.push(RESULTS.filter(function (v) { return v.v === x.result; })[0].t);
+    if (x.stage !== 'done') out.push(STAGES.filter(function (v) { return v.v === x.stage; })[0].t);
+    return out;
   }
   function tag(t, on) { return '<span class="tag' + (on ? ' on' : '') + '">' + esc(t) + '</span>'; }
 

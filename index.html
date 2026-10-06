@@ -31,6 +31,7 @@
       <form id="form" class="form" autocomplete="off" onsubmit="return false">
         <fieldset class="step">
           <legend><span class="num">1</span>날짜·나이</legend>
+          <p class="step-hint">생년월일을 넣으면 범행일 기준 만 나이를 자동 계산합니다. 모르면 아래 구간 버튼을 누르세요.</p>
           <label class="row">
             <span class="lbl">범행일</span>
             <input type="date" id="date">
@@ -43,10 +44,12 @@
               <input type="date" id="vBirth" aria-label="피해자 생년월일">
             </div>
             <div class="chips quick" data-quick="vAge">
-              <button type="button" data-v="10">13세 미만</button>
-              <button type="button" data-v="14">13~15세</button>
-              <button type="button" data-v="17">16~18세</button>
-              <button type="button" data-v="25">19세 이상</button>
+              <button type="button" data-v="10" data-min="0" data-max="12">13세 미만</button>
+              <button type="button" data-v="14" data-min="13" data-max="15">13~15세</button>
+              <button type="button" data-v="17" data-min="16" data-max="17">16~17세</button>
+              <button type="button" data-v="18" data-min="18" data-max="18">18세</button>
+              <button type="button" data-v="30" data-min="19" data-max="64">19~64세</button>
+              <button type="button" data-v="70" data-min="65" data-max="200">65세 이상</button>
             </div>
             <div class="age-out" id="vAgeOut"></div>
           </div>
@@ -58,22 +61,24 @@
               <input type="date" id="oBirth" aria-label="가해자 생년월일">
             </div>
             <div class="chips quick" data-quick="oAge">
-              <button type="button" data-v="12">14세 미만</button>
-              <button type="button" data-v="16">14~18세</button>
-              <button type="button" data-v="30">19세 이상</button>
+              <button type="button" data-v="12" data-min="0" data-max="13">14세 미만</button>
+              <button type="button" data-v="16" data-min="14" data-max="18">14~18세</button>
+              <button type="button" data-v="30" data-min="19" data-max="200">19세 이상</button>
             </div>
             <div class="age-out" id="oAgeOut"></div>
           </div>
         </fieldset>
 
         <fieldset class="step">
-          <legend><span class="num">2</span>무슨 일이 있었나</legend>
-          <div class="chips big" id="act"></div>
+          <legend><span class="num">2</span>행위</legend>
+          <p class="step-hint">가장 무거운 행위 하나를 고르세요. 여러 행위가 있었으면 하나씩 바꿔 가며 판정합니다.</p>
+          <div id="act"></div>
           <div id="subBox"></div>
         </fieldset>
 
         <fieldset class="step" id="meansStep">
-          <legend><span class="num">3</span>어떤 방법으로</legend>
+          <legend><span class="num">3</span>방법</legend>
+          <p class="step-hint">피해자의 저항을 어떻게 누르거나 피했는지 고르세요.</p>
           <div class="chips stack" id="means"></div>
         </fieldset>
 
@@ -84,13 +89,15 @@
         </fieldset>
 
         <fieldset class="step" id="flagStep">
-          <legend><span class="num">5</span>상황·관계 <small>해당하는 것 모두</small></legend>
-          <div class="chips" id="flags"></div>
+          <legend><span class="num">5</span>상황·관계</legend>
+          <p class="step-hint">해당하는 것을 모두 누르세요. 없으면 건너뜁니다.</p>
+          <div id="flags"></div>
         </fieldset>
 
         <fieldset class="step" id="resultStep">
-          <legend><span class="num">6</span>결과·진행 정도</legend>
-          <div class="chips" id="result"></div>
+          <legend><span class="num">6</span>결과</legend>
+          <div id="resultWrap"><div class="sub-title">피해 결과</div><div class="chips" id="result"></div></div>
+          <div class="sub-title">진행 정도</div>
           <div class="chips" id="stage"></div>
         </fieldset>
 
@@ -131,6 +138,18 @@
       <li><b>적용 안 됨</b>: 헷갈리기 쉬운 조문이 왜 적용되지 않는지 보여줍니다.</li>
       <li><span class="badge warn">죄명 확인</span> 표시가 있으면 죄명 표기를 대검 죄명예규 최신본으로 다시 확인하세요.</li>
     </ul>
+    <h2>피해자 나이를 이렇게 나눈 이유</h2>
+    <p>나이 버튼의 경계는 법에서 <b>적용 조문이 달라지는 나이</b>입니다. 나이는 항상 <b>범행일 당시 만 나이</b>로 판단합니다.</p>
+    <div class="age-guide">
+      <div class="ag"><div class="ag-h">13세 미만</div><div>성폭력처벌법 제7조로 가장 무겁게 처벌합니다(강간은 무기 또는 10년 이상). 강제 수단이 없고 동의가 있어도, <b>가해자 나이와 상관없이</b> 형법 제305조제1항으로 처벌합니다.</div></div>
+      <div class="ag"><div class="ag-h">13~15세</div><div><b>가해자가 19세 이상이면</b> 동의가 있어도 처벌합니다(형법 제305조제2항). 가해자가 19세 미만이면 폭행·협박, 위계·위력 등이 있어야 합니다. 궁박 이용(아청법 제8조의2), 성매수 1/2 가중(제13조제3항), 그루밍 목적 요건 면제(제15조의2제2항)도 이 나이까지 적용됩니다.</div></div>
+      <div class="ag"><div class="ag-h">16~17세</div><div>동의가 있으면 원칙적으로 성범죄가 아닙니다. 강제 수단이 있으면 아청법 제7조, 대가가 있으면 성매수(제13조), 촬영이 있으면 성착취물(제11조)을 적용합니다. 아동복지법상 아동(18세 미만)이라 성적 학대 규정도 함께 봅니다.</div></div>
+      <div class="ag"><div class="ag-h">18세</div><div>아청법 대상(19세 미만)이지만 <b>아동복지법상 아동은 아닙니다</b>(18세 미만만 해당). 그래서 16~17세와 따로 나눴습니다. 2024.6.27. 이전 범행이면 "19세가 되는 해 1월 1일을 맞은 사람"은 아청법에서도 빠지므로 생년월일을 꼭 확인하세요.</div></div>
+      <div class="ag"><div class="ag-h">19~64세</div><div>성인입니다. 형법과 성폭력처벌법을 적용합니다. 형법 제302조(미성년자 위계·위력)도 19세부터는 적용되지 않습니다.</div></div>
+      <div class="ag"><div class="ag-h">65세 이상</div><div>노인복지법상 노인에 대한 성폭행·성희롱 금지 규정(제39조의9제2호)을 함께 검토합니다.</div></div>
+    </div>
+    <p>가해자 나이는 <b>14세</b>(형사미성년자 — 형법 제9조, 10~13세는 촉법소년으로 소년부 송치)와 <b>19세</b>(형법 제305조제2항, 아청법 제8조·제8조의2·제15조의2는 가해자가 19세 이상일 때만 적용)가 경계입니다.</p>
+    <p>경계 나이(12·13·15·16·18·19세)를 직접 입력하면 생년월일로 다시 확인하라는 경고가 나옵니다. <b>현장에서는 생년월일 입력이 가장 정확합니다.</b></p>
     <h2>개인정보</h2>
     <p>입력값은 이 기기 화면에서만 계산하며 <b>어디에도 저장하거나 전송하지 않습니다.</b> 피해자 이름 등 신원 정보는 입력하지 마세요.</p>
     <h2>법령 기준</h2>
