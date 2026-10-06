@@ -273,3 +273,14 @@ code { background: var(--surface-2); padding: 1px 5px; border-radius: 4px; }
 .fold-close button { background: var(--surface-2); border: 0; border-radius: 10px; padding: 8px 14px; min-height: 40px; cursor: pointer; font-weight: 600; }
 .step.fold > legend:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
 
+
+/* 요약을 제목 아래 줄에 생략 없이 표시 */
+.step.fold > legend {
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto;
+  column-gap: 8px; row-gap: 2px; align-items: center;
+}
+.fold-sum {
+  grid-column: 2 / -1; grid-row: 2;
+  white-space: normal; overflow: visible; text-overflow: clip; text-align: left; line-height: 1.4;
+}
+.step.fold.open .fold-sum { display: none; }
